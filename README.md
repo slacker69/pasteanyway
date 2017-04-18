@@ -4,3 +4,4 @@ This is a Qt Application, that allows you to "paste" ascii text into forms/websi
 Linux needs "apt-get install libxtst-dev" for the extra header files; Windows should just work.
 
 
+<img src=https://raw.githubusercontent.com/slacker69/pasteanyway/master/pasteanyway_01.png>
