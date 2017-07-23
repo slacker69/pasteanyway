@@ -1,3 +1,5 @@
+// xed /usr/i686-w64-mingw32/include/winuser.rh  /usr/include/X11/keysymdef.h
+// for i in $(seq $((0x20)) $((0x7e))); do echo -ne "\x$(printf '%02x' $i)"; done; echo
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -43,10 +45,18 @@ void MainWindow::on_actionAbout_triggered(){
 }
 
 void MainWindow::keyevent(QChar x){
-    unsigned char b = x.toLatin1();
+    //unsigned char b = x.toLatin1();
+    unsigned short b = x.unicode();
+qDebug() << b << " -> " << x << " => " << x.unicode();
 #if defined(__linux) || defined(__linux__) || defined(linux)
-    if(b == 0x0a || b == 0x0d){
-        this->norm(XK_KP_Enter);
+    if(b < 0x20 || b > 0x7e){
+        if(b == 0x0a || b == 0x0d){
+            this->norm(XK_KP_Enter);
+        }else if(b == 8220 || b == 8221){
+            this->shift(XK_quotedbl);
+        }else if(b == 8216 || b == 8217){
+            this->norm(XK_quotedbl);
+        }
     }else{
         if(
                 (b >= 0x21 && b <= 0x26) ||
@@ -147,6 +157,7 @@ void MainWindow::norm(unsigned short x){
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, x), True, 0);
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, x), False, 0);
     XFlush(display);
+    XCloseDisplay(display);
 #elif defined(_WIN32) || defined(WIN32) || defined(WINDOWS)
     unsigned char key = (unsigned char)(x&0xff);
     keybd_event(key, MapVirtualKey(key, 0), 0, 0);
@@ -163,6 +174,7 @@ void MainWindow::shift(unsigned short x){
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, x), False, 0);
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Shift_L), False, 0);
     XFlush(display);
+    XCloseDisplay(display);
 #elif defined(_WIN32) || defined(WIN32) || defined(WINDOWS)
     unsigned char key = (unsigned char)(x&0xff);
     keybd_event(VK_SHIFT, MapVirtualKey(VK_SHIFT, 0), 0, 0);
